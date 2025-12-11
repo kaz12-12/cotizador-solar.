@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Solar | Cotización Rápida</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+    /* --- ESTILOS VISUALES LIMPIOS --- */
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        /* Fondo gris profesional en lugar de imagen */
+        background-color: #e9ecef; 
+        color: #333;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+    #calculadora-container {
+        /* Fondo blanco sólido para mejor lectura */
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Sombra elegante */
+        padding: 30px 35px;
+        width: 100%;
+        max-width: 500px;
+        border: 1px solid #dee2e6;
+    }
+    
+    h1 {
+        color: #005a87;
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 1.6rem;
+        font-weight: 700;
+    }
+    h2 { color: #005a87; text-align: center; margin-top: 0; margin-bottom: 20px; }
+    h3 { 
+        color: #004085; 
+        border-bottom: 2px solid #e6f7ff; 
+        padding-bottom: 8px; 
+        margin-top: 20px; 
+        margin-bottom: 15px; 
+        font-size: 1.1rem;
+        text-align: left; 
+    }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.95rem; }
+    .form-group label i { margin-right: 8px; color: #007bff; width: 20px; text-align: center; }
+    
+    .form-group input, .form-group select { 
+        width: 100%;
+        padding: 12px 15px; 
+        border: 1px solid #ced4da;
+        background-color: #f8f9fa;
+        border-radius: 6px; 
+        box-sizing: border-box; 
+        font-size: 1rem;
+        transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus {
+        border-color: #007bff;
+        outline: none;
+        background-color: #fff;
+    }
+    
+    button { 
+        width: 100%; 
+        padding: 14px; 
+        background-color: #007bff; 
+        color: white; 
+        border: none;
+        border-radius: 6px; 
+        font-size: 1.1rem; 
+        font-weight: bold; 
+        cursor: pointer; 
+        transition: background-color 0.3s ease; 
+        box-shadow: 0 4px 6px rgba(0,123,255,0.2);
+    }
+    button:hover { background-color: #0056b3; }
+    
+    .contact-section { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+    .contact-section h4 { margin-top: 0; margin-bottom: 15px; color: #555; font-weight: 600; }
+    
+    /* Botones de contacto */
+    .contact-button { 
+        display: block; 
+        width: 100%;
+        padding: 12px 10px; 
+        border-radius: 6px; 
+        text-decoration: none; 
+        color: white; 
+        font-weight: 600;
+        margin: 10px 0; 
+        font-size: 0.95rem; 
+        transition: opacity 0.3s ease; 
+        box-sizing: border-box;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .contact-button:hover { opacity: 0.9; transform: translateY(-1px); }
+    .contact-button i { margin-right: 8px; font-size: 1.1rem; }
+    .contact-button.whatsapp { background-color: #25D366; }
+    
+    .instruccion-texto {
+        font-size: 0.95rem;
+        color: #555;
+        line-height: 1.5;
+        margin-bottom: 20px;
+        text-align: left;
+    }
+    .email-directo {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #555;
+    }
+    .email-directo strong {
+        color: #004085;
+        font-size: 1rem;
+    }
+
+    /* ESTILO PARA LA NOTA NUEVA */
+    .nota-disclaimer {
+        background-color: #fff3cd; /* Amarillo suave */
+        border: 1px solid #ffeeba;
+        color: #856404;
+        padding: 15px;
+        border-radius: 6px;
+        margin-top: 25px;
+        margin-bottom: 20px;
+        font-size: 0.85rem;
+        text-align: justify;
+        line-height: 1.4;
+    }
+    .nota-disclaimer i { margin-right: 5px; }
+    
+    #resultado { 
+        margin-top: 30px;
+        padding: 25px; 
+        background-color: #f8f9fa; /* Gris muy claro para diferenciar */
+        border: 1px solid #e9ecef;
+        border-radius: 8px; 
+        display: none; 
+    }
+    
+    .resultado-ficha { 
+        display: flex;
+        justify-content: space-between; 
+        align-items: center; 
+        margin-bottom: 12px; 
+        padding: 12px; 
+        border-radius: 6px;
+        background-color: #ffffff;
+        border: 1px solid #dee2e6; 
+    }
+    
+    .resultado-ficha p { margin: 0;
+        font-size: 0.95rem; color: #555; font-weight: 600; }
+    .resultado-ficha span { font-size: 1.1rem; font-weight: bold; color: #004085;
+        text-align: right; }
+    .resultado-ficha .financiero { color: #0d6efd; font-size: 1.2rem; }
+    .resultado-ficha .ambiental { color: #198754; font-size: 1.2rem; }
+    
+    .grafico-container { width: 100%;
+        margin-top: 20px; padding-top: 20px; border-top: 1px solid #dee2e6; height: 250px; }
+    .grafico-container h4 { text-align: center;
+        margin-top: 0; margin-bottom: 15px; color: #555; font-weight: 600; }
+        
+    .print-button { background-color: #6c757d; margin-top: 20px; }
+    .print-button:hover { background-color: #5a6268; }
+    
+    /* Estilos de Impresión (PDF) */
+    @media print {
+        body { background-color: #fff; padding: 0; margin: 0; }
+        h1, .form-group, button[onclick="calcularSistema"], .print-button,
+        #resultado h2, .contact-section { display: none !important; }
+        #calculadora-container { box-shadow: none; border: none; padding: 0; width: 100%; max-width: 100%; }
+        #resultado { display: block !important; padding: 0; border: none; box-shadow: none; margin: 0; background-color: #fff; }
+        .resultado-ficha { border: 1px solid #ccc; page-break-inside: avoid; }
+        .nota-disclaimer { border: 1px solid #ccc; background-color: #fff; color: #333; }
+        .grafico-container { height: auto !important; page-break-inside: avoid; border-top: 1px solid #ccc; }
+    }
+    </style>
+</head>
+<body>
+
+    <div id="calculadora-container">
+    
+        <h1>☀️ Calculadora Solar y Autoconsumo</h1>
+        
+        <h3 style="text-align: center; margin-top: 0;"><i class="fa-solid fa-user-check"></i> Tus Datos</h3>
+        <div class="form-group">
+            <label for="clienteNombre"><i class="fa-solid fa-user"></i>Nombre Completo</label>
+            <input type="text" id="clienteNombre" placeholder="Ej: Juan Pérez">
+        </div>
+        <div class="form-group">
+            <label for="clienteTelefono"><i class="fa-solid fa-phone"></i>Teléfono</label>
+            <input type="tel" id="clienteTelefono" placeholder="Ej: +569 1234 5678">
+        </div>
+        <div class="form-group">
+            <label for="clienteEmail"><i class="fa-solid fa-envelope"></i>Email</label>
+            <input type="email" id="clienteEmail" placeholder="Ej: juan.perez@correo.com">
+        </div>
+        <div class="form-group">
+            <label for="clienteDireccion"><i class="fa-solid fa-map-marker-alt"></i>Dirección (Opcional)</label>
+            <input type="text" id="clienteDireccion" placeholder="Ej: Av. Siempre Viva 742, Santiago">
+        </div>
+        
+        <h3 style="text-align: center;"><i class="fa-solid fa-bolt"></i> Tu Consumo</h3>
+        <div class="form-group">
+            <label for="costoBoleta"><i class="fa-solid fa-file-invoice-dollar"></i>Costo Total Mensual ($)</label>
+            <input type="number" id="costoBoleta" placeholder="Ej: 45000">
+        </div>
+        
+        <h3 style="text-align: center;"><i class="fa-solid fa-solar-panel"></i> Tu Proyecto</h3>
+        <div class="form-group">
+            <label for="ciudad"><i class="fa-solid fa-map-location-dot"></i>Selecciona tu Ciudad</label>
+            <select id="ciudad">
+                <option value="">-- Elige una zona --</option>
+                <option value="5.3">Coquimbo / La Serena (IV Región)</option>
+                <option value="4.7">Santiago (Región Metropolitana)</option>
+            </select>
+        </div>
+        
+        <button onclick="calcularSistema()"><i class="fa-solid fa-calculator"></i> Calcular Sistema Ideal</button>
+        
+        
+        <div id="resultado">
+            <h2>📊 Resultados de tu Cotización</h2>
+            
+            <h3><i class="fa-solid fa-user"></i> Datos del Cliente</h3>
+            <div class="resultado-ficha">
+                <p>Nombre:</p>
+                <span id="infoNombre"></span>
+            </div>
+            <div class="resultado-ficha">
+                <p>Teléfono:</p>
+                <span id="infoTelefono"></span>
+            </div>
+            <div class="resultado-ficha">
+                <p>Email:</p>
+                <span id="infoEmail"></span>
+            </div>
+            <div class="resultado-ficha">
+                <p>Dirección:</p>
+                <span id="infoDireccion"></span>
+            </div>
+            
+            <h3><i class="fa-solid fa-list-check"></i> Resumen de tu Simulación</h3>
+            <div class="resultado-ficha">
+                <p>Costo Boleta Mensual:</p>
+                <span id="infoCostoBoleta"></span>
+            </div>
+            <div class="resultado-ficha">
+                <p>Ciudad:</p>
+                <span id="infoCiudad"></span>
+            </div>
+            
+            <h3><i class="fa-solid fa-gears"></i> Análisis Técnico</h3>
+            <div class="resultado-ficha">
+                <p>Potencia Inversor (AC):</p>
+                <span id="inversorResultado"></span>
+            </div>
+            <div class="resultado-ficha">
+                <p>Potencia Paneles (DC):</p>
+                <span id="potenciaResultado"></span>
+            </div>
+            <div class="resultado-ficha">
+                <p>Número de Paneles:</p>
+                <span id="panelesResultado"></span>
+            </div>
+          
+            <h3><i class="fa-solid fa-sack-dollar"></i> Análisis Financiero</h3>
+            <div class="resultado-ficha">
+                <p>Ahorro Anual Estimado:</p>
+                <span id="ahorroAnualResultado" class="financiero"></span>
+            </div>
+            <div class="resultado-ficha">
+                <p>Costo Estimado Proyecto:</p>
+                <span id="costoEstimadoResultado" class="financiero"></span>
+            </div>
+            <div class="resultado-ficha">
+                <p>Retorno de la Inversión:</p>
+                <span id="roiResultado" class="financiero"></span>
+            </div>
+            
+            <div class="nota-disclaimer">
+                <i class="fa-solid fa-circle-exclamation"></i> <strong>Nota Importante:</strong> Los valores son referenciales. Se asume que el sitio y la infraestructura son ideales para instalar en las mejores condiciones para su mayor rendimiento. Esto está afecto a coordinar con el cliente.
+            </div>
+          
+            <h3><i class="fa-solid fa-leaf"></i> Impacto Ambiental</h3>
+            <div class="resultado-ficha">
+                <p>Reducción Anual de CO2:</p>
+                <span id="co2Resultado" class="ambiental"></span>
+            </div>
+            
+            <div class="grafico-container">
+                <h4>Cobertura de Consumo (kWh)</h4>
+                <canvas id="graficoConsumo"></canvas>
+            </div>
+            <div class="grafico-container">
+                <h4>Proyección de Retorno (ROI)</h4>
+                <canvas id="graficoROI"></canvas>
+            </div>
+            
+            <div class="contact-section">
+                <h4>¡Estás a un paso!</h4>
+                
+                <p class="instruccion-texto">
+                    Para revisar su propuesta, <strong>seleccione un ejecutivo</strong> para contactar por WhatsApp:
+                </p>
+                
+                <a id="whatsapp-link" href="#" target="_blank" class="contact-button whatsapp">
+                    <i class="fa-brands fa-whatsapp"></i> Contactar Ejecutivo 1
+                </a>
+                
+                <a id="whatsapp-link-2" href="#" target="_blank" class="contact-button whatsapp">
+                    <i class="fa-brands fa-whatsapp"></i> Contactar Ejecutivo 2
+                </a>
+                
+                <p class="email-directo">
+                    O escríbenos directamente a:<br>
+                    <strong>presupuestoelectricos@gmail.com</strong>
+                </p>
+            </div>
+            
+            <button onclick="imprimirCotizacion()" class="print-button">
+                <i class="fa-solid fa-print"></i> Guardar Cotización como PDF
+            </button>
+            
+        </div>
+    </div>
+
+    <script>
+        // --- Lógica de la Aplicación ---
+
+        // --- CONSTANTES ---
+        const PRECIO_POR_KWP_CLP = 1000000; 
+        const FACTOR_CO2_KWH = 0.2421; 
+        const FACTOR_PERDIDAS = 0.80; 
+        const SOBREDIMENSION_DC_AC = 1.15;
+        
+        // Valores fijos
+        const PRECIO_KWH_FIJO = 249;
+        const PANEL_WP_FIJO = 550;
+        
+        // --- NÚMEROS DE WHATSAPP ---
+        const TELEFONO_1 = "56931722463";
+        const TELEFONO_2 = "56990334649"; 
+        
+        let miGraficoROI = null;
+        let miGraficoConsumo = null;
+        
+        function imprimirCotizacion() {
+            window.print();
+        }
+
+        function calcularSistema() {
+            
+            // 1. OBTENER DATOS
+            const clienteNombre = document.getElementById("clienteNombre").value.trim();
+            const clienteTelefono = document.getElementById("clienteTelefono").value.trim();
+            const clienteEmail = document.getElementById("clienteEmail").value.trim();
+            const clienteDireccion = document.getElementById("clienteDireccion").value.trim();
+            const costoBoleta = parseFloat(document.getElementById("costoBoleta").value);
+            const hsp = parseFloat(document.getElementById("ciudad").value);
+            
+            const precioKWh = PRECIO_KWH_FIJO;
+            const panelWp = PANEL_WP_FIJO;
+            
+            const divResultado = document.getElementById("resultado");
+            
+            // 2. VALIDAR DATOS
+            if (clienteNombre === "") { alert("Por favor, ingresa tu Nombre Completo.");
+                divResultado.style.display = "none"; return; }
+            if (clienteTelefono === "") { alert("Por favor, ingresa tu Teléfono.");
+                divResultado.style.display = "none"; return; }
+            if (clienteEmail === "") { alert("Por favor, ingresa tu Email.");
+                divResultado.style.display = "none"; return; }
+            if (isNaN(costoBoleta) || costoBoleta < 1000) { alert("Ingresa un costo válido.");
+                divResultado.style.display = "none"; return; }
+            if (isNaN(hsp) || hsp <= 0) { alert("Selecciona una ciudad.");
+                divResultado.style.display = "none"; return; }
+            
+
+            // 3. CÁLCULO
+            const consumoMensualKWh = costoBoleta / precioKWh;
+            const energiaDiariaNecesariaKWh = consumoMensualKWh / 30;
+            const potenciaIdealPanelesKWp = energiaDiariaNecesariaKWh / (FACTOR_PERDIDAS * hsp); 
+            const potenciaComercialInversorKW = Math.ceil(potenciaIdealPanelesKWp);
+            const potenciaTargetPanelesKWp = potenciaComercialInversorKW * SOBREDIMENSION_DC_AC; 
+            const numeroDePaneles = Math.ceil((potenciaTargetPanelesKWp * 1000) / panelWp);
+            const potenciaRealPanelesKWp = (numeroDePaneles * panelWp) / 1000; 
+            const energiaDiariaGeneradaKWh = potenciaRealPanelesKWp * FACTOR_PERDIDAS * hsp;
+            const generacionMensualKWh = energiaDiariaGeneradaKWh * 30;
+            const costoTotalProyecto = potenciaRealPanelesKWp * PRECIO_POR_KWP_CLP; 
+            const ahorroAnualCLP = costoBoleta * 12;
+            const roiAnios = costoTotalProyecto / ahorroAnualCLP;
+            const consumoAnualKWh = consumoMensualKWh * 12;
+            const co2ReducidoKg = consumoAnualKWh * FACTOR_CO2_KWH;
+            const co2ReducidoTon = co2ReducidoKg / 1000; 
+
+            // 4. MOSTRAR RESULTADO
+            
+            const formatoCLP = new Intl.NumberFormat('es-CL', {
+                style: 'currency',
+                currency: 'CLP',
+                maximumFractionDigits: 0 
+            });
+
+            // Rellenar datos de simulación
+            const ciudadSelect = document.getElementById("ciudad");
+            const ciudadNombre = ciudadSelect.options[ciudadSelect.selectedIndex].text;
+            document.getElementById("infoCostoBoleta").innerText = formatoCLP.format(costoBoleta);
+            document.getElementById("infoCiudad").innerText = `${ciudadNombre}`;
+
+            // Rellenar datos del cliente
+            document.getElementById("infoNombre").innerText = clienteNombre;
+            document.getElementById("infoTelefono").innerText = clienteTelefono;
+            document.getElementById("infoEmail").innerText = clienteEmail;
+            document.getElementById("infoDireccion").innerText = clienteDireccion || "No ingresada";
+            
+            // Rellenar datos técnicos y financieros
+            const potenciaRealFormateada = potenciaRealPanelesKWp.toFixed(2);
+            const roiFormateado = roiAnios.toFixed(1); 
+            const co2Formateado = co2ReducidoTon.toFixed(2); 
+            const costoTotalFormateado = formatoCLP.format(costoTotalProyecto);
+            const ahorroAnualFormateado = formatoCLP.format(ahorroAnualCLP);
+            
+            document.getElementById("potenciaResultado").innerText = `${potenciaRealFormateada} kWp (DC)`;
+            document.getElementById("panelesResultado").innerText = `${numeroDePaneles} paneles de ${panelWp} Wp`;
+            document.getElementById("inversorResultado").innerText = `${potenciaComercialInversorKW} kW (AC)`;
+            document.getElementById("ahorroAnualResultado").innerText = `${ahorroAnualFormateado} / año`; 
+            document.getElementById("costoEstimadoResultado").innerText = `${costoTotalFormateado}`;
+            document.getElementById("roiResultado").innerText = `${roiFormateado} años`;
+            document.getElementById("co2Resultado").innerText = `${co2Formateado} Toneladas / año`;
+            divResultado.style.display = "block";
+            
+            // 5. DIBUJAR GRÁFICOS
+            if (miGraficoROI) { miGraficoROI.destroy();
+            }
+            if (miGraficoConsumo) { miGraficoConsumo.destroy();
+            }
+            
+            const ctxConsumo = document.getElementById('graficoConsumo').getContext('2d');
+            miGraficoConsumo = new Chart(ctxConsumo, { 
+                type: 'bar',
+                data: {
+                    labels: ['Consumo Mensual', 'Generación Solar'],
+                    datasets: [{
+                        label: 'Energía (kWh)',
+                        data: [consumoMensualKWh.toFixed(0), generacionMensualKWh.toFixed(0)],
+                        backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(75, 192, 192, 0.2)'],
+                        borderColor: ['rgba(255, 99, 132, 1)', 
+                                    'rgba(75, 192, 192, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, ticks: { callback: value => `${value} kWh` } } },
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: context => `${context.parsed.y} kWh` } } }
+                }
+            });
+            
+            const ctxROI = document.getElementById('graficoROI').getContext('2d');
+            let etiquetasEjeX = []; 
+            let datosAhorroAcumulado = []; 
+            const aniosAMostrar = Math.ceil(roiAnios) + 2;
+            
+            for (let i = 0; i <= aniosAMostrar; i++) {
+                etiquetasEjeX.push(`Año ${i}`);
+                let ahorroAcumulado = (ahorroAnualCLP * i) - costoTotalProyecto;
+                datosAhorroAcumulado.push(ahorroAcumulado);
+            }
+            miGraficoROI = new Chart(ctxROI, { 
+                type: 'line', 
+                data: {
+                    labels: etiquetasEjeX,
+                    datasets: [{
+                        label: 'Ahorro Acumulado ($)',
+                        data: datosAhorroAcumulado,
+                        borderColor: '#0d6efd',
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        fill: true, 
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { ticks: { callback: value => formatoCLP.format(value) } } },
+                    plugins: { tooltip: { callbacks: { label: context => formatoCLP.format(context.parsed.y) } } }
+                }
+            });
+
+            // 6. ACTUALIZAR ENLACES
+            
+            let textoMensaje = `Hola,\n\nEstoy interesado/a en una cotización.
+            Los resultados de la calculadora fueron:\n\n`;
+            textoMensaje += `Cliente: ${clienteNombre}\n`;
+            textoMensaje += `Teléfono: ${clienteTelefono}\n`;
+            textoMensaje += `Email: ${clienteEmail}\n`;
+            textoMensaje += `Consumo: ${formatoCLP.format(costoBoleta)}/mes\n`;
+            textoMensaje += `Ciudad: ${ciudadNombre}\n`;
+            textoMensaje += `-------------------\n`;
+            textoMensaje += `Sistema Paneles: ${potenciaRealFormateada} kWp (DC)\n`;
+            textoMensaje += `Inversor: ${potenciaComercialInversorKW} kW (AC)\n`;
+            textoMensaje += `Costo Estimado: ${costoTotalFormateado}\n`;
+            textoMensaje += `Retorno (ROI): ${roiFormateado} años\n\n`;
+            
+            const textoWhatsAppCodificado = encodeURIComponent(textoWhatsApp);
+            
+            // Actualizar enlaces de WHATSAPP (BOTÓN 1 Y 2)
+            const whatsappLink1 = document.getElementById("whatsapp-link");
+            const whatsappLink2 = document.getElementById("whatsapp-link-2");
+            
+            const textoFinal = textoMensaje.replace(/Cliente:/g, "*Cliente:*")
+                                            .replace(/Teléfono:/g, "*Teléfono:*")
+                                            .replace(/Email:/g, "*Email:*")
+                                            .replace(/Consumo:/g, "*Consumo:*")
+                                            .replace(/Ciudad:/g, "*Ciudad:*")
+                                            .replace(/Sistema Paneles:/g, "*Sistema Paneles:*")
+                                            .replace(/Inversor:/g, "*Inversor:*")
+                                            .replace(/Costo Estimado:/g, "*Costo Estimado:*")
+                                            .replace(/Retorno \(ROI\):/g, "*Retorno (ROI):*");
+                                            
+            const textoFinalCodificado = encodeURIComponent(textoFinal);
+            
+            whatsappLink1.href = `https://wa.me/${TELEFONO_1}?text=${textoFinalCodificado}`;
+            whatsappLink2.href = `https://wa.me/${TELEFONO_2}?text=${textoFinalCodificado}`;
+        }
+    </script>
+
+</body>
+</html>
